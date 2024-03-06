@@ -8,7 +8,7 @@ package Modelo;
  *
  * @author user
  */
-public class PersonaModelo {
+public class PersonaModelo extends DirrecionModelo {
     private int CI ;
     private String NOMBRE;
     private String APELLIDO;
@@ -16,7 +16,16 @@ public class PersonaModelo {
     private String GRUPO_PRIORITARIO;
     private int TELEFONO;
     private int CELULAR;
-    private int ID_DIRECCION;
+
+    public PersonaModelo(int CI, String NOMBRE, String APELLIDO, int EDAD, String GRUPO_PRIORITARIO, int TELEFONO, int CELULAR) {
+        this.CI = CI;
+        this.NOMBRE = NOMBRE;
+        this.APELLIDO = APELLIDO;
+        this.EDAD = EDAD;
+        this.GRUPO_PRIORITARIO = GRUPO_PRIORITARIO;
+        this.TELEFONO = TELEFONO;
+        this.CELULAR = CELULAR;
+    }
 
     public PersonaModelo() {
     }
@@ -29,7 +38,17 @@ public class PersonaModelo {
         this.GRUPO_PRIORITARIO = GRUPO_PRIORITARIO;
         this.TELEFONO = TELEFONO;
         this.CELULAR = CELULAR;
-        this.ID_DIRECCION = ID_DIRECCION;
+
+    }
+
+    public PersonaModelo(int CI, String NOMBRE, String APELLIDO, int EDAD, String GRUPO_PRIORITARIO, int TELEFONO, int CELULAR, int ID_DIRECCION, String CALLE_PRINCIPAL, String CALLE_SECUNDARIA, String BARRIO, String PUNTO_REFERENCIA) {
+        this.CI = CI;
+        this.NOMBRE = NOMBRE;
+        this.APELLIDO = APELLIDO;
+        this.EDAD = EDAD;
+        this.GRUPO_PRIORITARIO = GRUPO_PRIORITARIO;
+        this.TELEFONO = TELEFONO;
+        this.CELULAR = CELULAR;
     }
 
     public int getCI() {
@@ -86,15 +105,6 @@ public class PersonaModelo {
 
     public void setCELULAR(int CELULAR) {
         this.CELULAR = CELULAR;
-    }
-
-    public int getID_DIRECCION() {
-        return ID_DIRECCION;
-    }
-
-    public void setID_DIRECCION(int ID_DIRECCION) {
-        this.ID_DIRECCION = ID_DIRECCION;
-    }
-    
+    }  
     
 }
