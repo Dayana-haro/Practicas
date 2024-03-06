@@ -26,6 +26,14 @@ public class DirrecionModelo {
         this.BARRIO = BARRIO;
         this.PUNTO_REFERENCIA = PUNTO_REFERENCIA;
     }
+
+    public DirrecionModelo(String CALLE_PRINCIPAL, String CALLE_SECUNDARIA, String BARRIO, String PUNTO_REFERENCIA) {
+        this.CALLE_PRINCIPAL = CALLE_PRINCIPAL;
+        this.CALLE_SECUNDARIA = CALLE_SECUNDARIA;
+        this.BARRIO = BARRIO;
+        this.PUNTO_REFERENCIA = PUNTO_REFERENCIA;
+    }
+    
     
 
     public int getID_DIRECCION() {

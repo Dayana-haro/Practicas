@@ -32,6 +32,10 @@ public class PersonaModelo {
         this.ID_DIRECCION = ID_DIRECCION;
     }
 
+    
+
+    
+
     public int getCI() {
         return CI;
     }
@@ -95,6 +99,6 @@ public class PersonaModelo {
     public void setID_DIRECCION(int ID_DIRECCION) {
         this.ID_DIRECCION = ID_DIRECCION;
     }
-    
+
     
 }

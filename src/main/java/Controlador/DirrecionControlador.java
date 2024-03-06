@@ -5,6 +5,7 @@
 package Controlador;
 
 import Modelo.DirrecionModelo;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,9 +17,10 @@ import javax.swing.JOptionPane;
  * @author user
  */
 public class DirrecionControlador {
+
     private DirrecionModelo dirreccion;
-    Conexion conectar =new Conexion();
-    Connection conectado = (Connection)conectar.conectar();
+    Conexion conectar = new Conexion();
+    Connection conectado = (Connection) conectar.conectar();
     PreparateStament ejecutar;
     ResultSet resultado;
     int res;//leer y obtener datos
@@ -33,29 +35,29 @@ public class DirrecionControlador {
     public void setModelo(DirrecionModelo dirreccion) {
         this.dirreccion = dirreccion;
     }
-    
-    
-    public void crearDirrecion (DirrecionModelo p){
-        try{
-                        
-            String SQL="call sp_CrearDirrecion('"+p.getCALLE_PRINCIPAL()+"',"
-                    + "'"+p.getCALLE_SECUNDARIA()+"',"
-                    + "'"+p.getBARRIO()+"','"
-                    +p.getPUNTO_REFERENCIA()+"')";
-            ejecutar = (PreparateStament)conectado.prepareCall(SQL);
-            resultado= ejecutar.executeQuery();
-            if(res>0){
-                JOptionPane.showMessageDialog(null, "Dirreccion ingresada con exito");
-            }else{
-                JOptionPane.showMessageDialog(null, "Revisar los datos ingresados");
-            }      
-           ejecutar.close(); 
-        }catch(SQLException e){
-            
+
+    public void crearDirrecion(DirrecionModelo p) {
+        try {
+            String SQL = "{CALL sp_CrearDireccion(?, ?, ?, ?)}";
+            CallableStatement dr = conectado.prepareCall(SQL);
+            dr.setString(1, p.getCALLE_PRINCIPAL());
+            dr.setString(2, p.getCALLE_SECUNDARIA());
+            dr.setString(3, p.getBARRIO());
+            dr.setString(4, p.getPUNTO_REFERENCIA());
+
+            int resultado = dr.executeUpdate();
+            if (resultado > 0) {
+                JOptionPane.showMessageDialog(null, "Dirección ingresada con éxito");
+            } else {
+                JOptionPane.showMessageDialog(null, "Error al ingresar la dirección", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+            dr.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
-    
-            
+
     private static class PreparateStament {
 
         public PreparateStament() {

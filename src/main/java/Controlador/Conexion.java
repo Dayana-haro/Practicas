@@ -19,7 +19,7 @@ public class Conexion {
             //Manera de Conexión a la Base de Datos
             Class.forName("com.mysql.jdbc.Driver");
             //Parámetros de conexión url/usuario/clave en mysql
-            conexion=DriverManager.getConnection("jdbc:mysql://localhost/prueba_fisio?autoReconnect=true&useSSL=false","root","Dayana26*");
+            conexion=DriverManager.getConnection("jdbc:mysql://localhost/centro_fisioterapia?autoReconnect=true&useSSL=false","root","Bryan123.");
             System.out.println("CONECTADO"); 
         } catch (ClassNotFoundException | SQLException e)//CAPTURAR ERRORES 
         {

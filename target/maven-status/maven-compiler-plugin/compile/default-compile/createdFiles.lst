@@ -1,11 +1,2 @@
 Controlador\PruebaBDD.class
-Controlador\Registros.class
-Modelo\Registros.class
-Controlador\Turnos.class
-Controlador\Persona.class
-Controlador\Dirrecion.class
-Modelo\Turnos.class
 Controlador\Conexion.class
-Modelo\Persona.class
-CentroFisioterapia.class
-Modelo\Dirrecion.class
