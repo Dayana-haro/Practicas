@@ -22,6 +22,12 @@ public class TurnosModelo {
         this.HORA = HORA;
     }
 
+    public TurnosModelo(String FECHA, String HORA) {
+        this.FECHA = FECHA;
+        this.HORA = HORA;
+    }
+    
+
     public TurnosModelo() {
     }
 

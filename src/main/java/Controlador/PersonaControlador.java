@@ -6,6 +6,7 @@ package Controlador;
 
 import Modelo.DirrecionModelo;
 import Modelo.PersonaModelo;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,27 +23,35 @@ public class PersonaControlador {
     PreparateStament ejecutar;
     ResultSet resultado;
     int res;
-   public void crearPersona (PersonaModelo p){
-        try{
-            int dirrecion=1;      
-            String SQL="call sp_CrearPersona('"+p.getCI()+"',"
-                    + "'"+p.getNOMBRE()+"',"
-                    + "'"+p.getAPELLIDO()+"','"
-                    +p.getEDAD()+"',"
-                    +p.getGRUPO_PRIORITARIO()+"',"
-                    +p.getTELEFONO()+"',"
-                    +p.getCELULAR()+"',"
-                    + dirrecion+"')";
-            ejecutar = (PreparateStament)conectado.prepareCall(SQL);
-            resultado= ejecutar.executeQuery();
-            if(res>0){
-                JOptionPane.showMessageDialog(null, "Persona creada con exito");
-            }else{
-                JOptionPane.showMessageDialog(null, "Revisar los datos ingresados");
-            }      
-           ejecutar.close(); 
-        }catch(SQLException e){
+    
+    
+   public void crearPersona(PersonaModelo p, DirrecionModelo d) {
+        try {
+            String SQL = "{call sp_CrearPersona(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+            CallableStatement cp = conectado.prepareCall(SQL);
             
+            // Establecer los parámetros para el procedimiento almacenado
+            cp.setInt(1, p.getCI());
+            cp.setString(2, p.getNOMBRE());
+            cp.setString(3, p.getAPELLIDO());
+            cp.setInt(4, p.getEDAD());
+            cp.setString(5, p.getGRUPO_PRIORITARIO());
+            cp.setString(6, p.getTELEFONO());
+            cp.setString(7, p.getCELULAR());
+            cp.setString(8, d.getCALLE_PRINCIPAL());
+            cp.setString(9, d.getCALLE_SECUNDARIA());
+            cp.setString(10, d.getBARRIO());
+            cp.setString(11, d.getPUNTO_REFERENCIA());
+            
+            // Ejecutar el procedimiento almacenado
+            cp.execute();
+            
+            JOptionPane.showMessageDialog(null, "INformación creada con éxito");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error al crear persona: " + e.getMessage());
+            e.printStackTrace();
         }
     }
-}
+   
+  }
+            

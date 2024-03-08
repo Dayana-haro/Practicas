@@ -9,19 +9,20 @@ package Modelo;
  * @author user
  */
 public class PersonaModelo {
-    private int CI ;
+
+    private int CI;
     private String NOMBRE;
     private String APELLIDO;
     private int EDAD;
     private String GRUPO_PRIORITARIO;
-    private int TELEFONO;
-    private int CELULAR;
+    private String TELEFONO;
+    private String CELULAR;
     private int ID_DIRECCION;
 
     public PersonaModelo() {
     }
 
-    public PersonaModelo(int CI, String NOMBRE, String APELLIDO, int EDAD, String GRUPO_PRIORITARIO, int TELEFONO, int CELULAR, int ID_DIRECCION) {
+    public PersonaModelo(int CI, String NOMBRE, String APELLIDO, int EDAD, String GRUPO_PRIORITARIO, String TELEFONO, String CELULAR, int ID_DIRECCION) {
         this.CI = CI;
         this.NOMBRE = NOMBRE;
         this.APELLIDO = APELLIDO;
@@ -72,19 +73,19 @@ public class PersonaModelo {
         this.GRUPO_PRIORITARIO = GRUPO_PRIORITARIO;
     }
 
-    public int getTELEFONO() {
+    public String getTELEFONO() {
         return TELEFONO;
     }
 
-    public void setTELEFONO(int TELEFONO) {
+    public void setTELEFONO(String TELEFONO) {
         this.TELEFONO = TELEFONO;
     }
 
-    public int getCELULAR() {
+    public String getCELULAR() {
         return CELULAR;
     }
 
-    public void setCELULAR(int CELULAR) {
+    public void setCELULAR(String CELULAR) {
         this.CELULAR = CELULAR;
     }
 
@@ -95,6 +96,5 @@ public class PersonaModelo {
     public void setID_DIRECCION(int ID_DIRECCION) {
         this.ID_DIRECCION = ID_DIRECCION;
     }
-    
-    
+
 }

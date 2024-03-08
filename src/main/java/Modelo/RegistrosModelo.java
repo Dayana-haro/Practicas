@@ -27,6 +27,21 @@ public class RegistrosModelo {
         this.FK_NUMERO_TURNO = FK_NUMERO_TURNO;
     }
 
+    public RegistrosModelo(int ID_REGISTRO, String OBSERVACIONES, String VALORACION, String ESTADO_PACIENTE) {
+        this.ID_REGISTRO = ID_REGISTRO;
+        this.OBSERVACIONES = OBSERVACIONES;
+        this.VALORACION = VALORACION;
+        this.ESTADO_PACIENTE = ESTADO_PACIENTE;
+    }
+
+    public RegistrosModelo(String VALORACION) {
+        this.VALORACION = VALORACION;
+    }
+    
+    
+    
+    
+
     public int getID_REGISTRO() {
         return ID_REGISTRO;
     }
