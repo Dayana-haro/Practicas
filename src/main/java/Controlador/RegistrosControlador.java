@@ -11,8 +11,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -45,18 +43,18 @@ public class RegistrosControlador {
 
     public void IngresarRegistros(RegistrosModelo r) {
         try {
-            String SQL = "{call sp_CrearRegistro(?, ?, ?, ?)}";
-            CallableStatement rg = conectado.prepareCall(SQL);
+            String SQL = "{call sp_CrearRegistro(?, ?, ?)}";
+            CallableStatement cs = conectado.prepareCall(SQL);
 
             // Establecer los parámetros para el procedimiento almacenado
-            rg.setString(1, r.getOBSERVACIONES());
-            rg.setString(2, r.getVALORACION());
-            rg.setString(3, r.getESTADO_PACIENTE());
-            rg.setInt(4, r.getFK_NUMERO_TURNO());
+            cs.setString(1, r.getOBSERVACIONES());
+            cs.setString(2, r.getVALORACION());
+            cs.setString(3, r.getESTADO_PACIENTE());
 
             // Ejecutar el procedimiento almacenado
-            rg.execute();
+            cs.execute();
 
+            // Si necesitas devolver algún valor o mensaje, puedes hacerlo aquí
             JOptionPane.showMessageDialog(null, "Registro creado con éxito");
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al crear registro: " + e.getMessage());
@@ -93,31 +91,6 @@ public class RegistrosControlador {
 
             JOptionPane.showMessageDialog(null, "La persona no está registrada." + ex);
 
-        }
-    }
-
-    public void registrarPersona(PersonaModelo persona, RegistrosModelo registro) {
-        String spCall = "{CALL sp_registrarPersonaRegistro(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
-
-        try {
-            CallableStatement callableStatement = conectado.prepareCall(spCall);
-            callableStatement.setInt(1, persona.getCI());
-            callableStatement.setString(2, persona.getNOMBRE());
-            callableStatement.setString(3, persona.getAPELLIDO());
-            callableStatement.setInt(4, persona.getEDAD());
-            callableStatement.setString(5, persona.getGRUPO_PRIORITARIO());
-            callableStatement.setInt(6, persona.getTELEFONO());
-            callableStatement.setInt(7, persona.getCELULAR());
-            callableStatement.setString(8, registro.getOBSERVACIONES());
-            callableStatement.setString(9, registro.getVALORACION());
-            callableStatement.setString(10, registro.getESTADO_PACIENTE());
-            callableStatement.setInt(11, registro.getFK_NUMERO_TURNO());
-
-            callableStatement.executeUpdate();
-
-            JOptionPane.showInputDialog("Persona registrada correctamente");
-        } catch (SQLException ex) {
-            Logger.getLogger(RegistrosControlador.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

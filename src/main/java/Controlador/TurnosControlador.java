@@ -4,13 +4,16 @@
  */
 package Controlador;
 
+import Modelo.RegistrosModelo;
 import Modelo.TurnosModelo;
+import java.util.List;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 /**
@@ -28,19 +31,49 @@ public class TurnosControlador {
 
     public void IngresarTurnos(TurnosModelo t) {
         try {
-            String SQL = "call sp_InsertarTurno('" + t.getFECHA() + "',"
-                    + "'" + t.getFK_CI() + "',"
-                    + "'" + t.getHORA() + "')";
-            ejecutar = (PreparateStament) conectado.prepareCall(SQL);
-            resultado = ejecutar.executeQuery();
-            if (res > 0) {
-                JOptionPane.showMessageDialog(null, "Registo creado con exito");
-            } else {
-                JOptionPane.showMessageDialog(null, "Revisar los datos ingresados");
-            }
-            ejecutar.close();
+            String SQL = "{call sp_InsertarTurno(?, ?, ?)}";
+            CallableStatement tr = conectado.prepareCall(SQL);
+
+            // Establecer los parámetros para el procedimiento almacenado
+            tr.setString(1, t.getFECHA());
+            tr.setString(2, t.getFK_CI());
+            tr.setString(3, t.getHORA());
+
+            tr.execute();
+
+            JOptionPane.showMessageDialog(null, "Turno creado con éxito");
         } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error al crear turno: " + e.getMessage());
+            e.printStackTrace();
         }
+    }
+
+        public List<String[]> recuperarTurnos() {
+        List<String[]> turnosList = new ArrayList<>();
+        try {
+            String SQL = "{call sp_recuperarTurno()}";
+            CallableStatement cs = conectado.prepareCall(SQL);
+            resultado = cs.executeQuery();
+
+            // Iterar sobre el resultado y procesar los datos
+            while (resultado.next()) {
+                // Recuperar los datos del resultado
+                String valoracion = resultado.getString("VALORACION");
+                String fecha = resultado.getString("FECHA");
+                String hora = resultado.getString("HORA");
+
+                // Agregar los datos a un arreglo de Strings
+                String[] turno = {valoracion, fecha, hora};
+                turnosList.add(turno);
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error al recuperar turnos: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        // Devolver la lista de arreglos de Strings con los datos recuperados
+        return turnosList;
     }
 
     public void MostrarTurnos() {

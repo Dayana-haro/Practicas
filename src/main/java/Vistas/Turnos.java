@@ -5,7 +5,12 @@
 package Vistas;
 
 import java.awt.Color;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.List;
 import javax.swing.JButton;
+import Controlador.TurnosControlador;
 
 /**
  *
@@ -13,24 +18,60 @@ import javax.swing.JButton;
  */
 public class Turnos extends javax.swing.JFrame {
 
+    private TurnosControlador turnosControlador;
+
     /**
      * Creates new form Turnos
      */
     public Turnos() {
         initComponents();
+        turnosControlador = new TurnosControlador();
+        llenarVectores(); // Llama primero a llenarVectores()
+        pintarBotones(); // Luego llama a pintarBotones()
     }
     Color Verde = new Color(118, 231, 53);
     Color Amarillo = new Color(243, 246, 31);
     Color Rojo = new Color(233, 69, 47);
     private int fecha;
     private String hora;
-    
+
     JButton[] vbtn = new JButton[60];
     String[] vfecha = new String[60];
     String[] vhora = new String[60];
-    
+
+    public void pintarBotones() {
+        // Obtener la lista de turnos desde la base de datos
+        List<String[]> turnosRecuperados = turnosControlador.recuperarTurnos();
+
+        // Iterar sobre la lista de turnos y pintar los botones
+        for (String[] turno : turnosRecuperados) {
+            String valoracion = turno[0];
+            String fecha = turno[1];
+            String hora = turno[2];
+
+            // Buscar el índice del botón correspondiente
+            int indiceBoton = BuscarCoincidencias(fecha, hora);
+
+            // Pintar el botón según la valoración del turno
+            switch (valoracion) {
+                case "Leve":
+                    vbtn[indiceBoton].setBackground(Verde);
+                    break;
+                case "Moderada":
+                    vbtn[indiceBoton].setBackground(Amarillo);
+                    break;
+                case "Grave":
+                    vbtn[indiceBoton].setBackground(Rojo);
+                    break;
+                default:
+                    System.out.println("Error: Valoración no reconocida.");
+                    break;
+            }
+        }
+    }
+
     // Método para llenar los botones
-     public void llenarVectores() {
+    public void llenarVectores() {
         vbtn[0] = jButton2;
         vbtn[1] = jButton3;
         vbtn[2] = jButton4;
@@ -91,11 +132,11 @@ public class Turnos extends javax.swing.JFrame {
         vbtn[57] = jButton59;
         vbtn[58] = jButton60;
         vbtn[59] = jButton61;
-        String Lunes = obtenerfecha(2);
-        String Martes = obtenerfecha(3);
-        String Miercoles = obtenerfecha(4);
-        String Jueves = obtenerfecha(5);
-        String Viernes = obtenerfecha(6);
+        String Lunes = obtenerFecha(2);
+        String Martes = obtenerFecha(3);
+        String Miercoles = obtenerFecha(4);
+        String Jueves = obtenerFecha(5);
+        String Viernes = obtenerFecha(6);
         for (int i = 0; i < 60; i++) {
             if (i < 12) {
                 vfecha[i] = Lunes;
@@ -135,12 +176,29 @@ public class Turnos extends javax.swing.JFrame {
             vhora[i] = "16:15:00";
         }
     }
-     
-    public String obtenerfecha(int i) {
-        String dia = null;
-        return dia; 
+
+    public String obtenerFecha(int diaSemana) {
+        LocalDate hoy = LocalDate.now();
+        DayOfWeek diaHoy = hoy.getDayOfWeek();
+        int diferenciaDias = diaSemana - diaHoy.getValue();
+
+        if (diferenciaDias <= 0) {
+            diferenciaDias += 7;
+        }
+
+        // Restar 1 al número que ingresas para que coincida con el valor de DayOfWeek
+        LocalDate fecha = hoy.with(TemporalAdjusters.nextOrSame(DayOfWeek.of(diaSemana - 1)));
+        return fecha.toString();
     }
-    
+
+    public int BuscarCoincidencias(String fecha, String hora) {
+        for (int i = 0; i < 60; i++) {
+            if (vfecha[i].equals(fecha) && vhora[i].equals(hora)) {
+                return i;
+            }
+        }
+        return 1;
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -152,7 +210,7 @@ public class Turnos extends javax.swing.JFrame {
     private void initComponents() {
 
         escritorio = new javax.swing.JDesktopPane();
-        jPanel1 = new javax.swing.JPanel();
+        fondo = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -790,21 +848,21 @@ public class Turnos extends javax.swing.JFrame {
             .addGap(0, 100, Short.MAX_VALUE)
         );
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout fondoLayout = new javax.swing.GroupLayout(fondo);
+        fondo.setLayout(fondoLayout);
+        fondoLayout.setHorizontalGroup(
+            fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fondoLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(AbrirVtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 880, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(38, 38, 38))
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel1Layout.createSequentialGroup()
+            .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(fondoLayout.createSequentialGroup()
                     .addGap(0, 35, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addGap(126, 126, 126)
                             .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(19, 19, 19)
@@ -815,7 +873,7 @@ public class Turnos extends javax.swing.JFrame {
                             .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(19, 19, 19)
                             .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(26, 26, 26)
                             .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -827,7 +885,7 @@ public class Turnos extends javax.swing.JFrame {
                             .addComponent(jButton38, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(18, 18, 18)
                             .addComponent(jButton50, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(26, 26, 26)
                             .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -839,7 +897,7 @@ public class Turnos extends javax.swing.JFrame {
                             .addComponent(jButton39, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(18, 18, 18)
                             .addComponent(jButton51, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(27, 27, 27)
                             .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -851,7 +909,7 @@ public class Turnos extends javax.swing.JFrame {
                             .addComponent(jButton40, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(18, 18, 18)
                             .addComponent(jButton52, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(27, 27, 27)
                             .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -863,7 +921,7 @@ public class Turnos extends javax.swing.JFrame {
                             .addComponent(jButton41, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(18, 18, 18)
                             .addComponent(jButton53, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(27, 27, 27)
                             .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -875,7 +933,7 @@ public class Turnos extends javax.swing.JFrame {
                             .addComponent(jButton42, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(18, 18, 18)
                             .addComponent(jButton54, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(27, 27, 27)
                             .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -887,7 +945,7 @@ public class Turnos extends javax.swing.JFrame {
                             .addComponent(jButton43, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(18, 18, 18)
                             .addComponent(jButton55, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(26, 26, 26)
                             .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -899,7 +957,7 @@ public class Turnos extends javax.swing.JFrame {
                             .addComponent(jButton44, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(18, 18, 18)
                             .addComponent(jButton56, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(26, 26, 26)
                             .addComponent(jButton9, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -911,7 +969,7 @@ public class Turnos extends javax.swing.JFrame {
                             .addComponent(jButton45, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(18, 18, 18)
                             .addComponent(jButton57, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(26, 26, 26)
                             .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -923,7 +981,7 @@ public class Turnos extends javax.swing.JFrame {
                             .addComponent(jButton46, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(18, 18, 18)
                             .addComponent(jButton58, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(27, 27, 27)
                             .addComponent(jButton11, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -935,7 +993,7 @@ public class Turnos extends javax.swing.JFrame {
                             .addComponent(jButton47, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(18, 18, 18)
                             .addComponent(jButton59, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(27, 27, 27)
                             .addComponent(jButton12, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -947,7 +1005,7 @@ public class Turnos extends javax.swing.JFrame {
                             .addComponent(jButton48, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(18, 18, 18)
                             .addComponent(jButton60, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(27, 27, 27)
                             .addComponent(jButton13, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -959,30 +1017,30 @@ public class Turnos extends javax.swing.JFrame {
                             .addComponent(jButton49, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(18, 18, 18)
                             .addComponent(jButton61, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addGap(469, 469, 469)
                             .addComponent(btn_espera, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGap(0, 36, Short.MAX_VALUE)))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        fondoLayout.setVerticalGroup(
+            fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(fondoLayout.createSequentialGroup()
                 .addGap(9, 9, 9)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(AbrirVtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(492, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel1Layout.createSequentialGroup()
+            .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(fondoLayout.createSequentialGroup()
                     .addGap(0, 129, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jLabel2)
                         .addComponent(jLabel3)
                         .addComponent(jLabel4)
                         .addComponent(jLabel5)
                         .addComponent(jLabel6))
                     .addGap(15, 15, 15)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jLabel7)
                         .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jButton14, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -990,7 +1048,7 @@ public class Turnos extends javax.swing.JFrame {
                         .addComponent(jButton38, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jButton50, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGap(12, 12, 12)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jLabel8)
                         .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jButton15, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -998,110 +1056,110 @@ public class Turnos extends javax.swing.JFrame {
                         .addComponent(jButton39, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jButton51, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGap(10, 10, 10)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jLabel9)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addGap(3, 3, 3)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton16, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton28, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton40, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton52, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGap(7, 7, 7)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jLabel10)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addGap(3, 3, 3)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton17, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton29, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton41, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton53, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGap(12, 12, 12)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jLabel11)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addGap(3, 3, 3)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton18, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton30, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton42, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton54, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGap(12, 12, 12)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jLabel12)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addGap(3, 3, 3)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton19, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton31, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton43, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton55, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGap(12, 12, 12)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jLabel13)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addGap(3, 3, 3)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton20, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton32, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton44, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton56, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGap(25, 25, 25)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jLabel14)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addGap(3, 3, 3)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jButton9, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton21, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton33, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton45, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton57, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGap(12, 12, 12)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jLabel15)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addGap(3, 3, 3)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton22, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton34, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton46, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton58, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGap(12, 12, 12)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jLabel16)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addGap(3, 3, 3)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jButton11, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton23, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton35, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton47, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton59, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGap(12, 12, 12)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jLabel17)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addGap(3, 3, 3)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jButton12, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton24, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton36, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton48, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton60, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGap(12, 12, 12)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jLabel18)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(fondoLayout.createSequentialGroup()
                             .addGap(3, 3, 3)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(fondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jButton13, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton25, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jButton37, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1112,7 +1170,7 @@ public class Turnos extends javax.swing.JFrame {
                     .addGap(0, 12, Short.MAX_VALUE)))
         );
 
-        escritorio.setLayer(jPanel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        escritorio.setLayer(fondo, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout escritorioLayout = new javax.swing.GroupLayout(escritorio);
         escritorio.setLayout(escritorioLayout);
@@ -1120,12 +1178,12 @@ public class Turnos extends javax.swing.JFrame {
             escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(escritorioLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(1, Short.MAX_VALUE))
+                .addComponent(fondo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         escritorioLayout.setVerticalGroup(
             escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(fondo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -1145,24 +1203,25 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         fecha = 2;
         hora = "08:30:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
+        
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         fecha = 2;
         hora = "09:05:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
-        
+
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         fecha = 2;
         hora = "09:40:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton4ActionPerformed
@@ -1170,7 +1229,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         fecha = 2;
         hora = "10:15:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton5ActionPerformed
@@ -1178,7 +1237,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         fecha = 2;
         hora = "10:50:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton6ActionPerformed
@@ -1186,7 +1245,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         fecha = 2;
         hora = "11:25:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton7ActionPerformed
@@ -1194,7 +1253,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
         fecha = 2;
         hora = "12:00:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton8ActionPerformed
@@ -1202,7 +1261,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
         fecha = 2;
         hora = "14:00:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton9ActionPerformed
@@ -1210,7 +1269,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
         fecha = 2;
         hora = "14:35:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton10ActionPerformed
@@ -1218,7 +1277,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
         fecha = 2;
         hora = "15:05:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton11ActionPerformed
@@ -1226,7 +1285,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
         fecha = 2;
         hora = "15:40:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton12ActionPerformed
@@ -1234,7 +1293,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
         fecha = 2;
         hora = "16:15:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton13ActionPerformed
@@ -1242,7 +1301,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
         fecha = 3;
         hora = "08:30:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton14ActionPerformed
@@ -1250,7 +1309,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton15ActionPerformed
         fecha = 3;
         hora = "09:05:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton15ActionPerformed
@@ -1258,7 +1317,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton16ActionPerformed
         fecha = 3;
         hora = "09:40:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton16ActionPerformed
@@ -1266,7 +1325,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton17ActionPerformed
         fecha = 3;
         hora = "10:15:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton17ActionPerformed
@@ -1274,7 +1333,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton18ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton18ActionPerformed
         fecha = 3;
         hora = "10:50:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton18ActionPerformed
@@ -1282,7 +1341,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton19ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton19ActionPerformed
         fecha = 3;
         hora = "11:25:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton19ActionPerformed
@@ -1290,7 +1349,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton20ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton20ActionPerformed
         fecha = 3;
         hora = "12:00:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton20ActionPerformed
@@ -1298,7 +1357,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton21ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton21ActionPerformed
         fecha = 3;
         hora = "14:00:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton21ActionPerformed
@@ -1306,7 +1365,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton22ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton22ActionPerformed
         fecha = 3;
         hora = "14:35:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton22ActionPerformed
@@ -1314,7 +1373,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton23ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton23ActionPerformed
         fecha = 3;
         hora = "15:05:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton23ActionPerformed
@@ -1322,7 +1381,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton24ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton24ActionPerformed
         fecha = 3;
         hora = "15:40:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton24ActionPerformed
@@ -1330,7 +1389,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton25ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton25ActionPerformed
         fecha = 3;
         hora = "16:15:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton25ActionPerformed
@@ -1338,7 +1397,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton26ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton26ActionPerformed
         fecha = 4;
         hora = "08:30:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton26ActionPerformed
@@ -1346,7 +1405,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton27ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton27ActionPerformed
         fecha = 4;
         hora = "09:05:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton27ActionPerformed
@@ -1354,7 +1413,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton28ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton28ActionPerformed
         fecha = 4;
         hora = "09:40:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton28ActionPerformed
@@ -1362,7 +1421,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton29ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton29ActionPerformed
         fecha = 4;
         hora = "10:15:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton29ActionPerformed
@@ -1370,7 +1429,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton30ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton30ActionPerformed
         fecha = 4;
         hora = "10:50:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton30ActionPerformed
@@ -1378,7 +1437,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton31ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton31ActionPerformed
         fecha = 4;
         hora = "11:25:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton31ActionPerformed
@@ -1386,7 +1445,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton32ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton32ActionPerformed
         fecha = 4;
         hora = "12:00:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton32ActionPerformed
@@ -1394,7 +1453,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton33ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton33ActionPerformed
         fecha = 4;
         hora = "14:00:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton33ActionPerformed
@@ -1402,7 +1461,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton34ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton34ActionPerformed
         fecha = 4;
         hora = "14:35:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton34ActionPerformed
@@ -1410,7 +1469,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton35ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton35ActionPerformed
         fecha = 4;
         hora = "15:05:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton35ActionPerformed
@@ -1418,7 +1477,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton36ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton36ActionPerformed
         fecha = 4;
         hora = "15:40:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton36ActionPerformed
@@ -1426,7 +1485,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton37ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton37ActionPerformed
         fecha = 4;
         hora = "16:15:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton37ActionPerformed
@@ -1434,7 +1493,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton38ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton38ActionPerformed
         fecha = 5;
         hora = "08:30:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton38ActionPerformed
@@ -1442,7 +1501,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton39ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton39ActionPerformed
         fecha = 5;
         hora = "09:05:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton39ActionPerformed
@@ -1450,7 +1509,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton40ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton40ActionPerformed
         fecha = 5;
         hora = "09:40:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton40ActionPerformed
@@ -1458,7 +1517,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton41ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton41ActionPerformed
         fecha = 5;
         hora = "10:15:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton41ActionPerformed
@@ -1466,7 +1525,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton42ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton42ActionPerformed
         fecha = 5;
         hora = "10:50:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton42ActionPerformed
@@ -1474,7 +1533,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton43ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton43ActionPerformed
         fecha = 5;
         hora = "11:25:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton43ActionPerformed
@@ -1482,7 +1541,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton44ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton44ActionPerformed
         fecha = 5;
         hora = "12:00:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton44ActionPerformed
@@ -1490,7 +1549,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton45ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton45ActionPerformed
         fecha = 5;
         hora = "14:00:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton45ActionPerformed
@@ -1498,7 +1557,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton46ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton46ActionPerformed
         fecha = 5;
         hora = "14:35:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton46ActionPerformed
@@ -1506,7 +1565,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton47ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton47ActionPerformed
         fecha = 5;
         hora = "15:05:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton47ActionPerformed
@@ -1514,7 +1573,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton48ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton48ActionPerformed
         fecha = 5;
         hora = "15:40:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton48ActionPerformed
@@ -1522,7 +1581,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton49ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton49ActionPerformed
         fecha = 5;
         hora = "16:15:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton49ActionPerformed
@@ -1530,7 +1589,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton50ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton50ActionPerformed
         fecha = 6;
         hora = "08:30:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton50ActionPerformed
@@ -1538,7 +1597,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton51ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton51ActionPerformed
         fecha = 6;
         hora = "09:05:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton51ActionPerformed
@@ -1546,7 +1605,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton52ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton52ActionPerformed
         fecha = 6;
         hora = "09:40:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton52ActionPerformed
@@ -1554,7 +1613,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton53ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton53ActionPerformed
         fecha = 6;
         hora = "10:15:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton53ActionPerformed
@@ -1562,7 +1621,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton54ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton54ActionPerformed
         fecha = 6;
         hora = "10:50:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton54ActionPerformed
@@ -1570,7 +1629,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton55ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton55ActionPerformed
         fecha = 6;
         hora = "11:25:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton55ActionPerformed
@@ -1578,7 +1637,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton56ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton56ActionPerformed
         fecha = 6;
         hora = "12:00:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton56ActionPerformed
@@ -1586,7 +1645,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton57ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton57ActionPerformed
         fecha = 6;
         hora = "14:00:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton57ActionPerformed
@@ -1594,7 +1653,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton58ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton58ActionPerformed
         fecha = 6;
         hora = "14:35:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton58ActionPerformed
@@ -1602,7 +1661,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton59ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton59ActionPerformed
         fecha = 6;
         hora = "15:05:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton59ActionPerformed
@@ -1610,7 +1669,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton60ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton60ActionPerformed
         fecha = 6;
         hora = "15:40:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton60ActionPerformed
@@ -1618,7 +1677,7 @@ public class Turnos extends javax.swing.JFrame {
     private void jButton61ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton61ActionPerformed
         fecha = 6;
         hora = "16:15:00";
-        Registros rg = new Registros();
+        Registros rg = new Registros(fecha, hora);
         escritorio.add(rg);
         rg.show();
     }//GEN-LAST:event_jButton61ActionPerformed
@@ -1669,6 +1728,7 @@ public class Turnos extends javax.swing.JFrame {
     public static javax.swing.JPanel AbrirVtn;
     private javax.swing.JButton btn_espera;
     public static javax.swing.JDesktopPane escritorio;
+    public static javax.swing.JPanel fondo;
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
     private javax.swing.JButton jButton12;
@@ -1747,6 +1807,5 @@ public class Turnos extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
 }

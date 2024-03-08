@@ -6,9 +6,12 @@ package Vistas;
 
 import Controlador.PersonaControlador;
 import Controlador.RegistrosControlador;
+import Controlador.TurnosControlador;
 import Modelo.DirrecionModelo;
 import Modelo.PersonaModelo;
 import Modelo.RegistrosModelo;
+import Modelo.TurnosModelo;
+import static Vistas.Turnos.fondo;
 
 /**
  *
@@ -19,8 +22,13 @@ public class Registros extends javax.swing.JInternalFrame {
     /**
      * Creates new form Registros
      */
-    public Registros() {
+    private int fecha;
+    private String hora;
+
+    public Registros(int fecha, String hora) {
         initComponents();
+        this.fecha = fecha;
+        this.hora = hora;
     }
 
     /**
@@ -79,11 +87,6 @@ public class Registros extends javax.swing.JInternalFrame {
 
         cmb_valoracion.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Leve", "Moderada", "Grave" }));
         cmb_valoracion.setToolTipText("");
-        cmb_valoracion.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cmb_valoracionActionPerformed(evt);
-            }
-        });
 
         lbl_motivo1.setText("Motivo:");
 
@@ -292,19 +295,17 @@ public class Registros extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void cmb_valoracionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmb_valoracionActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cmb_valoracionActionPerformed
-
     private void btn_registrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_registrarActionPerformed
         String grupo = (String) cmb_grupoPrio.getSelectedItem();
         String valoracion = (String) cmb_valoracion.getSelectedItem();
         String nombre = txt_nombre.getText();
         String apellido = txt_apellido.getText();
 
+        
+
         String motivo = txt_motivo.getText();
-        String estado = "Pendiente"; 
-        int numeroTurno = 8; // Aquí ingresa el número de turno que desees
+        String estado = "Pendiente";
+        int numeroTurno = 5; // Aquí ingresa el número de turno que desees
 
         if (!nombre.isEmpty()) {
             nombre = Character.toUpperCase(nombre.charAt(0)) + nombre.substring(1).toLowerCase();
@@ -330,8 +331,8 @@ public class Registros extends javax.swing.JInternalFrame {
         } else {
             idRol = "";
         }
-        
-        String Rol; 
+
+        String Rol;
 
         if ("Leve".equals(valoracion)) {
             Rol = "Leve";
@@ -342,9 +343,9 @@ public class Registros extends javax.swing.JInternalFrame {
         } else {
             Rol = "";
         }
-        
+
         PersonaModelo p = new PersonaModelo(Integer.parseInt(txt_cedula.getText()), txt_nombre.getText(), txt_apellido.getText(),
-                Integer.parseInt(txt_edad.getText()), idRol, Integer.parseInt(txt_telefono.getText()), Integer.parseInt(txt_celular.getText()),
+                Integer.parseInt(txt_edad.getText()), idRol, txt_telefono.getText(),txt_celular.getText(),
                 0);
 
         DirrecionModelo d = new DirrecionModelo();
@@ -356,10 +357,29 @@ public class Registros extends javax.swing.JInternalFrame {
         PersonaControlador u = new PersonaControlador();
         u.crearPersona(p, d);
         
-        
-        RegistrosModelo r = new RegistrosModelo(0, motivo,Rol, estado, numeroTurno);
+        // Asignar valores para los parámetros del turno
+        String cedulaPersona = txt_cedula.getText();
+        TurnosModelo turno = new TurnosModelo();
+        // Obtener la fecha correspondiente al día de la semana seleccionado
+        // Crear instancia de Turnos
+        Turnos turnos = new Turnos();
+        // Obtener la fecha correspondiente al día de la semana seleccionado
+        String fechaTurno = turnos.obtenerFecha(fecha);
+
+        turno.setFECHA(fechaTurno);
+        turno.setFK_CI(cedulaPersona);
+        turno.setHORA(this.hora);
+
+        // Crear instancia del controlador de turnos
+        TurnosControlador tc = new TurnosControlador();
+        tc.IngresarTurnos(turno);
+
+        RegistrosModelo r = new RegistrosModelo(0, motivo, Rol, estado);
         RegistrosControlador rc = new RegistrosControlador();
         rc.IngresarRegistros(r);
+        
+        
+        fondo.updateUI();
 
     }//GEN-LAST:event_btn_registrarActionPerformed
 

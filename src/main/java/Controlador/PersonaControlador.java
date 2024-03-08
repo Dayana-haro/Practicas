@@ -28,23 +28,23 @@ public class PersonaControlador {
    public void crearPersona(PersonaModelo p, DirrecionModelo d) {
         try {
             String SQL = "{call sp_CrearPersona(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
-            CallableStatement statement = conectado.prepareCall(SQL);
+            CallableStatement cp = conectado.prepareCall(SQL);
             
             // Establecer los parámetros para el procedimiento almacenado
-            statement.setInt(1, p.getCI());
-            statement.setString(2, p.getNOMBRE());
-            statement.setString(3, p.getAPELLIDO());
-            statement.setInt(4, p.getEDAD());
-            statement.setString(5, p.getGRUPO_PRIORITARIO());
-            statement.setString(6, Integer.toString(p.getTELEFONO()));
-            statement.setString(7, Integer.toString(p.getCELULAR()));
-            statement.setString(8, d.getCALLE_PRINCIPAL());
-            statement.setString(9, d.getCALLE_SECUNDARIA());
-            statement.setString(10, d.getBARRIO());
-            statement.setString(11, d.getPUNTO_REFERENCIA());
+            cp.setInt(1, p.getCI());
+            cp.setString(2, p.getNOMBRE());
+            cp.setString(3, p.getAPELLIDO());
+            cp.setInt(4, p.getEDAD());
+            cp.setString(5, p.getGRUPO_PRIORITARIO());
+            cp.setString(6, p.getTELEFONO());
+            cp.setString(7, p.getCELULAR());
+            cp.setString(8, d.getCALLE_PRINCIPAL());
+            cp.setString(9, d.getCALLE_SECUNDARIA());
+            cp.setString(10, d.getBARRIO());
+            cp.setString(11, d.getPUNTO_REFERENCIA());
             
             // Ejecutar el procedimiento almacenado
-            statement.execute();
+            cp.execute();
             
             JOptionPane.showMessageDialog(null, "INformación creada con éxito");
         } catch (SQLException e) {
